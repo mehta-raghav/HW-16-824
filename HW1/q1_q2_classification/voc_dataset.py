@@ -64,6 +64,7 @@ class VOCDataset(Dataset):
             # https://docs.python.org/3/library/xml.etree.elementtree.html)
             # Loop through the `tree` to find all objects in the image
             #######################################################################
+            root = tree.getroot()
 
             #  The class vector should be a 20-dimensional vector with class[i] = 1 if an object of class i is present in the image and 0 otherwise
             class_vec = torch.zeros(20)
@@ -72,6 +73,12 @@ class VOCDataset(Dataset):
             # The difficult attribute specifies whether a class is ambiguous and by setting its weight to zero it does not contribute to the loss during training 
             weight_vec = torch.ones(20)
 
+            for objects in root.iter('object'):
+                idx = self.INV_CLASS[objects.find('name').text]
+                class_vec[idx] = 1
+                if root.find('difficult') is not None:
+                    if int(objects.find('difficult').text) == 1:
+                        weight_vec[idx] = 0
             ######################################################################
             #                            END OF YOUR CODE                        #
             ######################################################################
