@@ -53,7 +53,11 @@ def train(args, model, optimizer, scheduler=None, model_name='model'):
             # Function Outputs:
             #   - `output`: Computed loss, a single floating point number
             ##################################################################
-            loss = 0
+            output_proba = torch.sigmoid(output)
+            raw_loss = target * torch.log(output_proba) + (1 - target) * torch.log(1 - output_proba)
+            weighted_loss = raw_loss * wgt
+            loss = -weighted_loss.sum() / wgt.sum()
+            # TODO: Add overflow prevention constants
             ##################################################################
             #                          END OF YOUR CODE                      #
             ##################################################################
