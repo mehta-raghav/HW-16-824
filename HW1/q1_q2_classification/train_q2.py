@@ -113,7 +113,7 @@ if __name__ == "__main__":
     features = np.array(features)
     labels = np.array(labels)
 
-    X_embedded = TSNE(n_components=2, random_state=42).fit_transform(features)
+    X_embedded = TSNE(n_components=2).fit_transform(features)
 
     fig, ax = plt.subplots(figsize=(12, 7))
     scatter = ax.scatter(
@@ -121,12 +121,10 @@ if __name__ == "__main__":
         X_embedded[:, 1],
         c=labels,
         cmap="tab20",
-        alpha=0.8,
         edgecolors="none",
     )
 
     ax.set_title("2D Projection of ResNet Features", fontsize=14, pad=15)
-    ax.grid(True, linestyle="--", alpha=0.5)
 
     handles, _ = scatter.legend_elements(num=20)
     ax.legend(
@@ -135,5 +133,5 @@ if __name__ == "__main__":
         title="Classes",
     )
 
-    plt.savefig("tsne_plot.png", dpi=300, bbox_inches="tight")
+    plt.savefig("tsne_plot.png", dpi=300)
     plt.close()
