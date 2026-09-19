@@ -1,12 +1,14 @@
 import torch
 import trainer
-from utils import ARGS
+from utils import ARGS, get_data_loader
 from simple_cnn import SimpleCNN
 from voc_dataset import VOCDataset
 import numpy as np
 import torchvision
 import torch.nn as nn
 import random
+from sklearn.manifold import TSNE
+import matplotlib.pyplot as plt
 
 
 class ResNet(nn.Module):
@@ -86,3 +88,52 @@ if __name__ == "__main__":
     # one 512-dimensional feature vector per image for ResNet-18.
     # Use the 20 base PASCAL VOC classes (VOCDataset.CLASS_NAMES) in the
     # legend, rather than creating entries for multi-label combinations.
+
+    model.fc = torch.nn.Identity()
+    model = model.eval()
+
+    voc_data_loader = get_data_loader('voc', train=False, batch_size=1, split='test', inp_size=224)
+
+    features = []
+    labels = []
+    num_samples = 0
+    with torch.no_grad():
+        for data, target, _ in voc_data_loader:
+            if target.sum() != 1:
+                continue
+            data = data.to(args.device)
+            f = model(data)
+
+            features.append(f.cpu().numpy().squeeze(0))
+            labels.append(target.argmax(dim=-1).item())
+            num_samples += 1
+            if num_samples >= 1000:
+                break
+
+    features = np.array(features)
+    labels = np.array(labels)
+
+    X_embedded = TSNE(n_components=2, random_state=42).fit_transform(features)
+
+    fig, ax = plt.subplots(figsize=(12, 7))
+    scatter = ax.scatter(
+        X_embedded[:, 0],
+        X_embedded[:, 1],
+        c=labels,
+        cmap="tab20",
+        alpha=0.8,
+        edgecolors="none",
+    )
+
+    ax.set_title("2D Projection of ResNet Features", fontsize=14, pad=15)
+    ax.grid(True, linestyle="--", alpha=0.5)
+
+    handles, _ = scatter.legend_elements(num=20)
+    ax.legend(
+        handles,
+        VOCDataset.CLASS_NAMES,
+        title="Classes",
+    )
+
+    plt.savefig("tsne_plot.png", dpi=300, bbox_inches="tight")
+    plt.close()
