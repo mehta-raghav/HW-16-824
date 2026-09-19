@@ -99,7 +99,9 @@ class VOCDataset(Dataset):
         # change and you will have to write the correct value of `flat_dim`
         # in line 46 in simple_cnn.py
         ######################################################################
-        pass
+        t = [transforms.RandomApply(torch.nn.ModuleList([transforms.ColorJitter()]), p = 0.3)]
+        return t
+        # TODO: Add better data augmentation
         ######################################################################
         #                            END OF YOUR CODE                        #
         ######################################################################
