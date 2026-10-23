@@ -82,8 +82,11 @@ class DetectorBackboneWithFPN(nn.Module):
         self.fpn_params = nn.ModuleDict()
         for level_name, feature_shape in dummy_out_shapes:
             in_channels = feature_shape[1]
-            self.fpn_params[f"lateral_{level_name}"] = nn.Conv2d(in_channels, out_channels, kernel_size=1)
-            self.fpn_params[f"output_{level_name}"] = nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1)
+            lateral_name = f"lateral_{level_name}"
+            self.fpn_params[lateral_name] = nn.Conv2d(in_channels, out_channels, kernel_size=(1, 1))
+            output_name = f"output_{level_name}"
+            self.fpn_params[output_name] = nn.Conv2d(out_channels, out_channels, kernel_size=(3, 3), padding=1)
+
         ######################################################################
         #                            END OF YOUR CODE                        #
         ######################################################################
