@@ -590,8 +590,7 @@ class FCOS(nn.Module):
             level_deltas = level_deltas[mask]
             level_locations = level_locations[mask]
             left, top, right, bottom = level_deltas.unbind(dim=1)
-            left, top, right, bottom = left * fpn_strides[level_name], top * fpn_strides[level_name], right * fpn_strides[level_name], bottom * fpn_strides[level_name] \
-                         fpn_strides[level_name]
+            left, top, right, bottom = left * fpn_strides[level_name], top * fpn_strides[level_name], right * fpn_strides[level_name], bottom * fpn_strides[level_name], fpn_strides[level_name]
             x_center, y_center = level_locations.unbind(dim=1)
             x0, y0, x1, y1 = x_center - left, y_center - top, x_center + right, y_center + bottom
 
