@@ -178,3 +178,4 @@ cython_debug/
 */.idea/**
 *.tfevents*
 HW1/q1_q2_classification/data/*
+/.idea
