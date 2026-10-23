@@ -4,6 +4,7 @@ and two-stage detector implementations. You have to implement some parts here -
 walk through the notebooks and you will find instructions on *when* to implement
 *what* in this module.
 """
+from re import L
 from typing import Dict, Tuple, List, Optional
 
 import torch
