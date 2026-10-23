@@ -294,7 +294,7 @@ def get_fpn_location_coords(
         cord_x_center = level_stride // 2 + cord_x * level_stride
         cord_y_center = level_stride // 2 + cord_y * level_stride
 
-        location_coords[level_name] = torch.stack((cord_y_center, cord_x_center), dim=-1).reshape(
+        location_coords[level_name] = torch.stack((cord_x_center, cord_y_center), dim=-1).reshape(
             -1, 2
         )
         ######################################################################
