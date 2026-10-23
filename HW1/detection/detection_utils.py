@@ -284,16 +284,19 @@ def get_fpn_location_coords(
         ##################################################################–####
         # TODO: Implement logic to get location co-ordinates below.          #
         ######################################################################
-        H, W = feat_shape[2], feat_shape[3]
+        H, W = feat_shape[-2], feat_shape[-1]
 
-        coords_list = []
-        for row in range(H):
-            for col in range(W):
-                xc = (col + 0.5) * level_stride
-                yc = (row + 0.5) * level_stride
-                coords_list.append([xc, yc])
+        x = torch.arange(W, dtype=dtype, device=device)
+        y = torch.arange(H, dtype=dtype, device=device)
 
-        location_coords[level_name] = torch.tensor(coords_list, dtype=dtype, device=device)
+        cord_x, cord_y = torch.meshgrid(x, y, indexing="xy")
+
+        cord_x_center = level_stride // 2 + cord_x * level_stride
+        cord_y_center = level_stride // 2 + cord_y * level_stride
+
+        location_coords[level_name] = torch.stack((cord_y_center, cord_x_center), dim=-1).reshape(
+            -1, 2
+        )
         ######################################################################
         #                             END OF YOUR CODE                       #
         ######################################################################
