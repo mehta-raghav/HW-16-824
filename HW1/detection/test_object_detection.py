@@ -26,6 +26,8 @@ class TestDetectorBackboneWithFPN(unittest.TestCase):
         if torch.cuda.is_available():
             #print("Using CUDA for testing.")
             self.device = torch.device("cuda")
+        elif torch.backends.mps.is_available():
+            self.device = torch.device("mps")
         else:
             #print("Using CPU, CUDA not available for testing.")
             self.device = torch.device("cpu")
