@@ -472,14 +472,14 @@ class FCOS(nn.Module):
             pred_boxreg_deltas, matched_gt_deltas, reduction="none"
         )
         # No loss for background
-        loss_box[matched_gt_deltas < 0] *= 0.0
+        loss_box[matched_gt_deltas < 0] = 0.0
 
         # Loss for centerness
         centerness_gt = fcos_make_centerness_targets(matched_gt_deltas)
         loss_ctr = F.binary_cross_entropy_with_logits(
             pred_ctr_logits, centerness_gt, reduction="none"
         )
-        loss_ctr[centerness_gt < 0] *= 0.0
+        loss_ctr[centerness_gt < 0] = 0.0
 
         ######################################################################
         #                            END OF YOUR CODE                        #
@@ -538,6 +538,8 @@ class FCOS(nn.Module):
         pred_boxes_all_levels = []
         pred_classes_all_levels = []
         pred_scores_all_levels = []
+
+        fpn_strides = self.backbone.fpn_strides
 
         for level_name in locations_per_fpn_level.keys():
 
