@@ -576,19 +576,16 @@ class FCOS(nn.Module):
             )
             # Step 1:
             # Replace "pass" statement with your code
-            level_pred_scores, level_pred_classes = level_pred_scores.max(dim=1)
 
             # Step 2:
             # Replace "pass" statement with your code
             thresh = level_pred_scores > test_score_thresh
             level_pred_scores = level_pred_scores[thresh]
             level_pred_classes = level_pred_classes[thresh]
-            level_locations = level_locations[thresh]
             level_deltas = level_deltas[thresh]
 
             # Step 3:
             # Replace "pass" statement with your code
-            level_stride = self.backbone.fpn_strides[level_name]
             level_pred_boxes = fcos_apply_deltas_to_locations(level_deltas, level_locations, level_stride)
 
             # Step 4: Use `images` to get (height, width) for clipping.
