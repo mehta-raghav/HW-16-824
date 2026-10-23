@@ -196,22 +196,13 @@ def fcos_apply_deltas_to_locations(
     # for our use-case because the feature center must lie INSIDE the final  #
     # box. Make sure to clip them to zero.                                   #
     ##########################################################################
-    deltas_clamped = torch.clamp(deltas, min=0.0)
-
-    x_center = locations[:, 0]
-    y_center = locations[:, 1]
-
-    left = deltas_clamped[:, 0] * stride
-    top = deltas_clamped[:, 1] * stride
-    right = deltas_clamped[:, 2] * stride
-    bottom = deltas_clamped[:, 3] * stride
-
-    x1 = x_center - left
-    y1 = y_center - top
-    x2 = x_center + right
-    y2 = y_center + bottom
-
-    output_boxes = torch.stack([x1, y1, x2, y2], dim=-1)
+    scaled_deltas = (deltas * stride).clip(min=0)
+    left, top, right, bottom = torch.unbind(scaled_deltas, dim=1)
+    xc, yc = torch.unbind(locations, dim=1)
+    output_boxes = torch.stack(
+        (xc - left, yc - top, xc + right, yc + bottom),
+        dim=1
+    )
     ##########################################################################
     #                             END OF YOUR CODE                           #
     ##########################################################################
