@@ -572,13 +572,13 @@ class FCOS(nn.Module):
                 None,  # Need tensors of shape: (N, 4) (N, ) (N, )
             )
 
-            # Compute geometric mean of class logits and centerness:
-            level_pred_scores = torch.sqrt(level_cls_logits.sigmoid_() * level_ctr_logits.sigmoid_())
+            # Compute per-class scores as geometric mean of class prob and centerness:
+            # shape: (H*W, num_classes)
             level_cls_probs = level_cls_logits.sigmoid()
             level_ctr_probs = level_ctr_logits.sigmoid()
             level_pred_scores = torch.sqrt(level_cls_probs * level_ctr_probs)
 
-            # Step 1:
+            # Step 1: Get the best class and its score for every location.
             level_pred_scores, level_pred_classes = level_pred_scores.max(dim=1)
 
             # Step 2:
