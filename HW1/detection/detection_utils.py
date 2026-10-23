@@ -234,23 +234,14 @@ def fcos_make_centerness_targets(deltas: torch.Tensor):
     #   (max(left, right) * max(top, bottom))
     # )
     ##########################################################################
-    left = deltas[:, 0]
-    top = deltas[:, 1]
-    right = deltas[:, 2]
-    bottom = deltas[:, 3]
+    left, top, right, bottom = torch.unbind(deltas, dim=1)
 
-    min_lr = torch.minimum(left, right)
-    max_lr = torch.maximum(left, right)
-    min_tb = torch.minimum(top, bottom)
-    max_tb = torch.maximum(top, bottom)
+    numerator = torch.min(left, right) * torch.min(top, bottom)
+    denominator = torch.max(left, right) * torch.max(top, bottom)
+    centerness = torch.sqrt(numerator / (denominator + 1e-6))
 
-    numerator = min_lr * min_tb
-    denominator = max_lr * max_tb
-
-    centerness = torch.sqrt(numerator/denominator)
-
-    is_background = (deltas < 0).any(dim=1)
-    centerness[is_background] = -1.0
+    background_mask = (left == -1) | (top == -1) | (right == -1) | (bottom == -1)
+    centerness[background_mask] = -1
     ##########################################################################
     #                             END OF YOUR CODE                           #
     ##########################################################################
