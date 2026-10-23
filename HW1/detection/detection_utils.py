@@ -140,23 +140,22 @@ def fcos_get_deltas_from_locations(
     ##########################################################################
     # Set this to Tensor of shape (N, 4) giving deltas (left, top, right, bottom)
     # from the locations to GT box edges, normalized by FPN stride.
-    x_center = locations[:, 0]
-    y_center = locations[:, 1]
+    x_center, y_center = locations[:, 0], locations[:, 1]
+    x0, y0, x1, y1 = gt_boxes[:, 0], gt_boxes[:, 1], gt_boxes[:, 2], gt_boxes[:, 3]
 
-    x1 = gt_boxes[:, 0]
-    y1 = gt_boxes[:, 1]
-    x2 = gt_boxes[:, 2]
-    y2 = gt_boxes[:, 3]
+    left = (x_center - x0) / stride
+    top = (y_center - y0) / stride
+    right = (x1 - x_center) / stride
+    bottom = (y1 - y_center) / stride
 
-    left = (x_center - x1) / stride
-    top = (y_center - y1) / stride
-    right = (x2 - x_center) / stride
-    bottom = (y2 - y_center) / stride
+    background_mask = (x0 == -1) | (y0 == -1) | (x1 == -1) | (y1 == -1)
 
-    deltas = torch.stack([left, top, right, bottom], dim=-1)
+    left[background_mask] = -1
+    top[background_mask] = -1
+    right[background_mask] = -1
+    bottom[background_mask] = -1
 
-    is_background = (gt_boxes < 0).any(dim=1)
-    deltas[is_background] = -1.0
+    deltas = torch.stack((left, top, right, bottom), dim=1)
     ##########################################################################
     #                             END OF YOUR CODE                           #
     ##########################################################################
