@@ -573,39 +573,30 @@ class FCOS(nn.Module):
             )
 
             # Compute geometric mean of class logits and centerness:
-            level_pred_scores = torch.sqrt(
-                level_cls_logits.sigmoid_() * level_ctr_logits.sigmoid_()
-            )
+            level_pred_scores = torch.sqrt(level_cls_logits.sigmoid_() * level_ctr_logits.sigmoid_())
+            level_cls_probs = level_cls_logits.sigmoid()
+            level_ctr_probs = level_ctr_logits.sigmoid()
+            level_pred_scores = torch.sqrt(level_cls_probs * level_ctr_probs)
+
             # Step 1:
-            # Replace "pass" statement with your code
-            level_pred_scores = level_pred_scores.max(dim=1).values
+            level_pred_scores, level_pred_classes = level_pred_scores.max(dim=1)
 
             # Step 2:
-            # Replace "pass" statement with your code
             mask = level_pred_scores > test_score_thresh
-            level_pred_classes_prob = level_pred_classes_prob[mask]
-            level_pred_classes = level_pred_classes_prob.argmax(dim=1)
+            level_pred_scores = level_pred_scores[mask]
+            level_pred_classes = level_pred_classes[mask]
 
             # Step 3:
-            # Replace "pass" statement with your code
-            fpn_strides = self.backbone.fpn_strides
-            level_deltas = level_deltas[mask]
-            level_locations = level_locations[mask]
-            left, top, right, bottom = level_deltas.unbind(dim=1)
-            left, top, right, bottom = left * fpn_strides[level_name], top * fpn_strides[level_name], right * fpn_strides[level_name], bottom * fpn_strides[level_name], fpn_strides[level_name]
-            x_center, y_center = level_locations.unbind(dim=1)
-            x0, y0, x1, y1 = x_center - left, y_center - top, x_center + right, y_center + bottom
+            level_pred_boxes = fcos_apply_deltas_to_locations(
+                level_deltas[mask], level_locations[mask], fpn_strides[level_name]
+            )
 
             # Step 4: Use `images` to get (height, width) for clipping.
-            # Replace "pass" statement with your code
             H, W = images.shape[-2], images.shape[-1]
-            x0 = x0.clip(min=0, max=W)
-            y0 = y0.clip(min=0, max=H)
-            x1 = x1.clip(min=0, max=W)
-            y1 = y1.clip(min=0, max=H)
-            level_pred_boxes = torch.stack([x0, y0, x1, y1], dim=1).reshape(-1, 4)
-
-            level_pred_scores = level_pred_scores[mask]
+            level_pred_boxes[:, 0].clip_(min=0, max=W)
+            level_pred_boxes[:, 1].clip_(min=0, max=H)
+            level_pred_boxes[:, 2].clip_(min=0, max=W)
+            level_pred_boxes[:, 3].clip_(min=0, max=H)
             ##################################################################
             #                          END OF YOUR CODE                      #
             ##################################################################
