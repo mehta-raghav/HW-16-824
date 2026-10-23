@@ -4,7 +4,6 @@ and two-stage detector implementations. You have to implement some parts here -
 walk through the notebooks and you will find instructions on *when* to implement
 *what* in this module.
 """
-from re import L
 from typing import Dict, Tuple, List, Optional
 
 import torch
@@ -141,7 +140,7 @@ def fcos_get_deltas_from_locations(
     # Set this to Tensor of shape (N, 4) giving deltas (left, top, right, bottom)
     # from the locations to GT box edges, normalized by FPN stride.
     x_center, y_center = locations[:, 0], locations[:, 1]
-    x0, y0, x1, y1 = gt_boxes[:, 0], gt_boxes[:, 1], gt_boxes[:, 2], gt_boxes[:, 3]
+    x0, y0, x1, y1 = torch.unbind(gt_boxes[:, :4], dim=1)
 
     left = (x_center - x0) / stride
     top = (y_center - y0) / stride
