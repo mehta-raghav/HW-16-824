@@ -576,17 +576,24 @@ class FCOS(nn.Module):
             )
             # Step 1:
             # Replace "pass" statement with your code
+            level_pred_scores = level_pred_scores.max(dim=1).values
 
             # Step 2:
             # Replace "pass" statement with your code
-            thresh = level_pred_scores > test_score_thresh
-            level_pred_scores = level_pred_scores[thresh]
-            level_pred_classes = level_pred_classes[thresh]
-            level_deltas = level_deltas[thresh]
+            mask = level_pred_scores > test_score_thresh
+            level_pred_classes_prob = level_pred_classes_prob[mask]
+            level_pred_classes = level_pred_classes_prob.argmax(dim=1)
 
             # Step 3:
             # Replace "pass" statement with your code
-            level_pred_boxes = fcos_apply_deltas_to_locations(level_deltas, level_locations, level_stride)
+            fpn_strides = self.backbone.fpn_strides
+            level_deltas = level_deltas[mask]
+            level_locations = level_locations[mask]
+            left, top, right, bottom = level_deltas.unbind(dim=1)
+            left, top, right, bottom = left * fpn_strides[level_name], top * fpn_strides[level_name], right * fpn_strides[level_name], bottom * fpn_strides[level_name] \
+                         fpn_strides[level_name]
+            x_center, y_center = level_locations.unbind(dim=1)
+            x0, y0, x1, y1 = x_center - left, y_center - top, x_center + right, y_center + bottom
 
             # Step 4: Use `images` to get (height, width) for clipping.
             # Replace "pass" statement with your code
