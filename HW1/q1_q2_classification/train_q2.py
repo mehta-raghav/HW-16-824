@@ -47,7 +47,7 @@ if __name__ == "__main__":
     # Aim for an mAP of around 0.8 (80%) in 50 epochs.
     ##################################################################
     args = ARGS(
-        epochs=1,
+        epochs=50,
         inp_size=224,
         use_cuda=True,
         val_every=150,
